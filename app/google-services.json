@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "408179303810",
+    "firebase_url": "https://online-learning-d2f9c.firebaseio.com",
+    "project_id": "online-learning-d2f9c",
+    "storage_bucket": "online-learning-d2f9c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408179303810:android:4ab55d40ef2eb472665b9b",
+        "android_client_info": {
+          "package_name": "com.nisith.onlinelearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408179303810-1niupicvmkpl8bj4bqn2jkdan0sth9t5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDh3xxrsZjoOi2kXIFwl7e3Umhu2I1W9a8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408179303810-1niupicvmkpl8bj4bqn2jkdan0sth9t5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
