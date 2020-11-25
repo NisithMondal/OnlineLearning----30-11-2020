@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ControlPanelActivity"></activity>
+        <activity android:name=".QuestionAnswerEditActivity"></activity>
+        <activity android:name=".MenuItemsActivity" />
+        <activity android:name=".MenuHeadingOptionsActivity" />
+        <activity android:name=".ControlPanelActivity" />
         <activity android:name=".RegisterOptionActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />

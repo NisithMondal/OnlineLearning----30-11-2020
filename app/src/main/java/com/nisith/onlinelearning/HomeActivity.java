@@ -124,16 +124,16 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getTitle().toString()){
             case Constant.LOGOUT:
                 firebaseAuth.signOut();
-
                 break;
             case Constant.ADMIN_USER_LOGIN:
                 startActivity(new Intent(HomeActivity.this, ControlPanelActivity.class));
                 break;
             case Constant.PRIVACY_POLICY:
                 Toast.makeText(this, "PRIVACY_POLICY", Toast.LENGTH_SHORT).show();
+
                 break;
             default:
-                Toast.makeText(this, ""+menuItem.getGroupId(), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
