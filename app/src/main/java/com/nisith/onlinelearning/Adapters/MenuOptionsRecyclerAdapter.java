@@ -1,13 +1,22 @@
 package com.nisith.onlinelearning.Adapters;
 
+import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.nisith.onlinelearning.Constant;
 import com.nisith.onlinelearning.Model.MenuItem;
 import com.nisith.onlinelearning.R;
 
@@ -17,15 +26,17 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuItem, MenuOptionsRecyclerAdapter.MyViewHolder> {
 
    public interface OnItemClickListener{
-        void onItemClick(String title, DocumentReference documentReference);
+        void onItemClick(View view, String title, DocumentReference documentReference);
     }
 
 
     private OnItemClickListener itemClickListener;
+   private Context context;
 
-    public MenuOptionsRecyclerAdapter(@NonNull FirestoreRecyclerOptions<MenuItem> options, OnItemClickListener itemClickListener) {
+    public MenuOptionsRecyclerAdapter(@NonNull FirestoreRecyclerOptions<MenuItem> options, OnItemClickListener itemClickListener, Context context) {
         super(options);
         this.itemClickListener = itemClickListener;
+        this.context = context;
     }
 
     @NonNull
@@ -45,17 +56,87 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
 
     class MyViewHolder extends RecyclerView.ViewHolder{
         TextView titleTextView;
+        Button saveButton;
+        EditText updateEditText;
+        ImageView editImageView, deleteImageView;
         public MyViewHolder(@NonNull final View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.text_view);
+            saveButton = itemView.findViewById(R.id.save_button);
+            updateEditText = itemView.findViewById(R.id.update_edit_text);
+            editImageView = itemView.findViewById(R.id.edit_image_view);
+            deleteImageView = itemView.findViewById(R.id.delete_image_view);
+            saveButton.setVisibility(View.GONE);
+            updateEditText.setVisibility(View.GONE);
+
+
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DocumentReference documentReference = getSnapshots().getSnapshot(getAdapterPosition()).getReference();
+                    String text = updateEditText.getText().toString();
+                    if (!TextUtils.isEmpty(text)){
+                        update(documentReference, text);
+                        updateEditText.setVisibility(View.GONE);
+                        saveButton.setVisibility(View.GONE);
+                    }else {
+                        Toast.makeText(context, "enter text", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
+
+            editImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DocumentReference documentReference = getSnapshots().getSnapshot(getAdapterPosition()).getReference();
+                    itemClickListener.onItemClick(v, getItem(getAdapterPosition()).getTitle(),documentReference);
+                    updateEditText.setText(titleTextView.getText());
+                    if (updateEditText.getVisibility() == View.GONE){
+                        //show edit text
+                        updateEditText.setVisibility(View.VISIBLE);
+                        saveButton.setVisibility(View.VISIBLE);
+
+                    }else {
+                        updateEditText.setVisibility(View.GONE);
+                        saveButton.setVisibility(View.GONE);
+                    }
+                }
+            });
+            deleteImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DocumentReference documentReference = getSnapshots().getSnapshot(getAdapterPosition()).getReference();
+                    documentReference.delete();//delete the document
+                }
+            });
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     DocumentReference documentReference = getSnapshots().getSnapshot(getAdapterPosition()).getReference();
-                    itemClickListener.onItemClick(getItem(getAdapterPosition()).getTitle(),documentReference);
+                    itemClickListener.onItemClick(v, getItem(getAdapterPosition()).getTitle(),documentReference);
                 }
             });
         }
+
+        private void update(DocumentReference documentReference, String data){
+            documentReference.update(Constant.TITLE, data)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            updateEditText.setVisibility(View.GONE);
+                            saveButton.setVisibility(View.GONE);
+                            if (task.isSuccessful()){
+                                Toast.makeText(context, "Save Successfully", Toast.LENGTH_SHORT).show();
+                            }else {
+                                Toast.makeText(context, "Not save. Something went wrong...", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+
+
     }
 
 }

@@ -6,6 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,20 +21,46 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.nisith.onlinelearning.Adapters.HomeRecyclerViewAdapter;
+import com.nisith.onlinelearning.Fragments.CommentFragment;
+import com.nisith.onlinelearning.Fragments.HomeFragment;
+import com.nisith.onlinelearning.Model.DrawerMenu;
+import com.nisith.onlinelearning.Model.QuestionAnswer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+
+    public interface OnFragmentDataCommunicationListener{
+        void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId);
+    }
 
     private NavigationView navigationDrawerView;
     private DrawerLayout drawerLayout;
     private Toolbar appToolbar;
+    private BottomNavigationView bottomNavigationView;
     //Firebase Auth
     private FirebaseAuth firebaseAuth;
+    private CollectionReference rootCollectionRef;
+    private List<DrawerMenu> drawerMenuList;
+    private String menuHeaderDocumentId, menuItemDocumentId;
+    private OnFragmentDataCommunicationListener onFragmentDataCommunicationListener;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +68,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_home);
         initializeViews();
         addNavigationDrawer();
-        addNavigationDrawerMenuItems();
+        drawerMenuList = new ArrayList<>();
         //Firebase
         firebaseAuth = FirebaseAuth.getInstance();
+        rootCollectionRef = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new MyNavigationItemSelectedListener());
+        //Set default fragment on starting
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new HomeFragment(menuHeaderDocumentId, menuItemDocumentId), "fragment").commit();
     }
 
 
@@ -48,13 +82,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         navigationDrawerView = findViewById(R.id.navigation_view);
         drawerLayout = findViewById(R.id.navigation_drawer);
         appToolbar = findViewById(R.id.app_toolbar);
-
         setSupportActionBar(appToolbar);
         setTitle("");
         TextView toolbarTextView = findViewById(R.id.toolbar_text_view);
         toolbarTextView.setText("Online Learning");
         setSupportActionBar(appToolbar);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
     }
+
 
 
     @Override
@@ -66,33 +101,82 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
+        addNavigationDrawerMenuItems();
+
     }
+
+
+    class MyNavigationItemSelectedListener implements BottomNavigationView.OnNavigationItemSelectedListener{
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+            Fragment fragment = null;
+            switch (menuItem.getItemId()){
+                case R.id.home:
+                    fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId);
+                    onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
+                    break;
+
+                case R.id.add_comment:
+                    fragment = new CommentFragment();
+                    break;
+
+                case R.id.account:
+
+                    break;
+            }
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
+            return true;
+        }
+    }
+
+
 
     private void addNavigationDrawerMenuItems(){
-        List<CharSequence> name = new ArrayList();
-        name.add("Java");
-        name.add("Python");
-        name.add("Android");
-        name.add("Java Script");
-
-        Menu drawerMenu = navigationDrawerView.getMenu();
-        SubMenu subMenu = drawerMenu.addSubMenu(0,0,Menu.NONE,"Programming Languages");
-        for (int i = 0; i < 4; i++) {
-
-            subMenu.add(0, i, Menu.NONE,name.get(i));
-            subMenu.setIcon(R.drawable.ic_android);
-        }
-        SubMenu subMenu1 = drawerMenu.addSubMenu("Mobile App Tutorial");
-        subMenu1.add(1, 0, Menu.NONE,"Android");
-        subMenu1.add(1, 1, Menu.NONE,"IOS");
-
-        SubMenu subMenu3 = drawerMenu.addSubMenu("Other Options");
-
-        subMenu3.add("Logout");
-        subMenu3.add("Privacy Policy");
-        subMenu3.add(Constant.ADMIN_USER_LOGIN);
+        //fetch all menu items from fire store. First fetch all menu headers Title
+        final Menu drawerMenu = navigationDrawerView.getMenu();
+        drawerMenu.clear();
+        drawerMenuList.clear();
+        rootCollectionRef.orderBy(Constant.TITLE).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                    String menuHeaderTitle = (String) documentSnapshot.get(Constant.TITLE);
+                    if (menuHeaderTitle!=null) {
+                        String documentId = documentSnapshot.getId();
+                        SubMenu subMenu = drawerMenu.addSubMenu(menuHeaderTitle);
+                        fetchSubmenuItems(documentId,  subMenu);
+                    }
+                }
+                addAnotherSubMenu();
+            }
+        });
 
     }
+
+    private void addAnotherSubMenu(){
+        Menu drawerMenu = navigationDrawerView.getMenu();
+        SubMenu subMenu = drawerMenu.addSubMenu("Other Options");
+        subMenu.add("logout");
+        subMenu.add("Privacy Policy");
+        subMenu.add("Admin User Login");
+    }
+
+    private void fetchSubmenuItems(final String menuHeaderId, final SubMenu subMenu){
+        //fetch all the sub menu items
+        rootCollectionRef.document(menuHeaderId).collection(Constant.LANGUAGE_COLLECTION).orderBy(Constant.TITLE).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                            String subMenuItemTitle =  Objects.requireNonNull(documentSnapshot.get(Constant.TITLE)).toString();
+                            drawerMenuList.add(new DrawerMenu(menuHeaderId, documentSnapshot.getId(), subMenuItemTitle));
+                            subMenu.add(subMenuItemTitle);
+                        }
+                    }
+                });
+    }
+
+
 
 
     private void addNavigationDrawer(){
@@ -129,11 +213,21 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(HomeActivity.this, ControlPanelActivity.class));
                 break;
             case Constant.PRIVACY_POLICY:
+                startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
                 Toast.makeText(this, "PRIVACY_POLICY", Toast.LENGTH_SHORT).show();
-
                 break;
             default:
-                startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
+                String itemTitle = (String) menuItem.getTitle();
+                    for (DrawerMenu drawerMenu : drawerMenuList){
+                        if (drawerMenu.getMenuItemTitle().equals(itemTitle)){
+                            if (onFragmentDataCommunicationListener != null) {
+                                menuHeaderDocumentId = drawerMenu.getMenuHeaderDocumentId();
+                                menuItemDocumentId = drawerMenu.getMenuItemDocumentId();
+                                onFragmentDataCommunicationListener.onDataCommunication(drawerMenu.getMenuHeaderDocumentId(), drawerMenu.getMenuItemDocumentId());
+                                break;
+                            }
+                        }
+                    }
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.CommentFragment"
+    >
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="100 Comments"
+        android:background="@drawable/text_view_background"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="7dp"
+        android:textStyle="bold"
+        android:padding="7dp"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/comment_recycler_view"
+        android:layout_below="@+id/text_view"
+        android:layout_above="@+id/comment_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+        <EditText
+            android:id="@+id/comment_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Write Your Comments"
+            android:padding="12dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_toStartOf="@+id/commit_button"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="10dp"
+            />
+
+    <ImageButton
+        android:id="@+id/commit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_send"
+        android:background="@drawable/button_round_background"
+        android:layout_alignParentEnd="true"
+        android:padding="10dp"
+        android:layout_marginEnd="12dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        />
+
+
+
+
+
+
+</RelativeLayout>

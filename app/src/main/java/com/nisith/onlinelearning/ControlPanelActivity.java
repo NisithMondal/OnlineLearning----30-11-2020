@@ -266,7 +266,8 @@ public class ControlPanelActivity extends AppCompatActivity {
             answerEditText.requestFocus();
             return;
         }
-        long currentTimeMilli =  SystemClock.currentThreadTimeMillis();
+        long currentTimeMilli =  System.currentTimeMillis();
+
 //        String randomKey = getCurrentDateAndTime() + currentTimeMilli;
         QuestionAnswer questionAnswer = new QuestionAnswer(questionValue, answerValue, currentTimeMilli);
         WriteBatch writeBatch = FirebaseFirestore.getInstance().batch();

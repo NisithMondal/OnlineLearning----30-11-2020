@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -53,7 +54,7 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
         FirestoreRecyclerOptions<MenuItem> recyclerOptions = new FirestoreRecyclerOptions.Builder<MenuItem>()
                 .setQuery(query, MenuItem.class)
                 .build();
-        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this);
+        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this, this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setHasFixedSize(true);
@@ -77,13 +78,13 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
     }
 
     @Override
-    public void onItemClick(String title, DocumentReference documentReference) {
-        Intent intent = new Intent(this, QuestionAnswerEditActivity.class);
-        intent.putExtra(Constant.PARENT_DOCUMENT_ID, documentId);
-        intent.putExtra(Constant.CHILD_DOCUMENT_ID, documentReference.getId());
-        intent.putExtra(Constant.TITLE, title);
-        Log.d("ABCD", documentId);
-        Log.d("ABCD", documentReference.getId());
-        startActivity(intent);
+    public void onItemClick(View view, String title, DocumentReference documentReference) {
+        if (view.getId()==R.id.root_view) {
+            Intent intent = new Intent(this, QuestionAnswerEditActivity.class);
+            intent.putExtra(Constant.PARENT_DOCUMENT_ID, documentId);
+            intent.putExtra(Constant.CHILD_DOCUMENT_ID, documentReference.getId());
+            intent.putExtra(Constant.TITLE, title);
+            startActivity(intent);
+        }
     }
 }
