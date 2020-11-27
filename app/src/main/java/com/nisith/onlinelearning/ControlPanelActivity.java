@@ -5,10 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -104,6 +108,26 @@ public class ControlPanelActivity extends AppCompatActivity {
         addTopicIcon = findViewById(R.id.text_view3);
         menuHeaderTextView = findViewById(R.id.menu_header_text_view);
         topicTextView = findViewById(R.id.topic_text_view);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.admin_menu, menu);
+        menu.findItem(R.id.write_question_answer_panel).setVisible(false);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.edit_question_answer_panel){
+            startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
+        }
+        return true;
     }
 
     private void viewsVisibility(int visibility){
@@ -211,6 +235,9 @@ public class ControlPanelActivity extends AppCompatActivity {
     }
 
 
+
+
+
     private class MySpinnerItemsClickListener implements AdapterView.OnItemSelectedListener{
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -267,8 +294,6 @@ public class ControlPanelActivity extends AppCompatActivity {
             return;
         }
         long currentTimeMilli =  System.currentTimeMillis();
-
-//        String randomKey = getCurrentDateAndTime() + currentTimeMilli;
         QuestionAnswer questionAnswer = new QuestionAnswer(questionValue, answerValue, currentTimeMilli);
         WriteBatch writeBatch = FirebaseFirestore.getInstance().batch();
         DocumentReference menuOptionsDocumentRef = menuHeaderCollectionRef.document(menuHeaderSpinnerValue);
@@ -289,12 +314,13 @@ public class ControlPanelActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
                     Toast.makeText(ControlPanelActivity.this, "Successful", Toast.LENGTH_SHORT).show();
                 }else {
-                    Log.d("ABCDE", task.getException().getMessage());
                     Toast.makeText(ControlPanelActivity.this, "Error "+ Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
+
+
 
 
     private String getCurrentDateAndTime(){

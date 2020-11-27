@@ -1,17 +1,18 @@
 package com.nisith.onlinelearning;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.paging.PagedList;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import id.zelory.compressor.Compressor;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +22,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -30,20 +30,23 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.nisith.onlinelearning.Adapters.HomeRecyclerViewAdapter;
 import com.nisith.onlinelearning.Fragments.CommentFragment;
 import com.nisith.onlinelearning.Fragments.HomeFragment;
+import com.nisith.onlinelearning.Fragments.UserAccountFragment;
 import com.nisith.onlinelearning.Model.DrawerMenu;
-import com.nisith.onlinelearning.Model.QuestionAnswer;
+import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
 
     public interface OnFragmentDataCommunicationListener{
         void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId);
@@ -74,7 +77,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         rootCollectionRef = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
         bottomNavigationView.setOnNavigationItemSelectedListener(new MyNavigationItemSelectedListener());
         //Set default fragment on starting
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, new HomeFragment(menuHeaderDocumentId, menuItemDocumentId), "fragment").commit();
+        Fragment fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId);
+        onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment, "fragment").commit();
     }
 
 
@@ -117,11 +122,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     break;
 
                 case R.id.add_comment:
-                    fragment = new CommentFragment();
+                    fragment = new CommentFragment(menuHeaderDocumentId, menuItemDocumentId);
+                    onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
                     break;
 
                 case R.id.account:
-
+                    fragment = new UserAccountFragment();
                     break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
@@ -210,10 +216,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 firebaseAuth.signOut();
                 break;
             case Constant.ADMIN_USER_LOGIN:
-                startActivity(new Intent(HomeActivity.this, ControlPanelActivity.class));
+                startActivity(new Intent(HomeActivity.this, AdminOptionsActivity.class));
                 break;
             case Constant.PRIVACY_POLICY:
-                startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
                 Toast.makeText(this, "PRIVACY_POLICY", Toast.LENGTH_SHORT).show();
                 break;
             default:
@@ -225,6 +230,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 menuItemDocumentId = drawerMenu.getMenuItemDocumentId();
                                 onFragmentDataCommunicationListener.onDataCommunication(drawerMenu.getMenuHeaderDocumentId(), drawerMenu.getMenuItemDocumentId());
                                 break;
+                            }else {
+                                Toast.makeText(this, "else null "+itemTitle, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -265,5 +272,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
+
+
+
+
 
 }

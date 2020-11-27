@@ -1,5 +1,6 @@
 package com.nisith.onlinelearning;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -60,6 +63,27 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.admin_menu, menu);
+        menu.findItem(R.id.edit_question_answer_panel).setVisible(false);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull android.view.MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.write_question_answer_panel){
+            startActivity(new Intent(this, ControlPanelActivity.class));
+        }
+        return true;
+    }
+
 
     @Override
     protected void onStart() {

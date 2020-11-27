@@ -1,5 +1,6 @@
 package com.nisith.onlinelearning;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -9,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -23,7 +27,6 @@ import com.nisith.onlinelearning.Adapters.MenuOptionsRecyclerAdapter;
 import com.nisith.onlinelearning.Adapters.QAEditRecyclerAdapter;
 import com.nisith.onlinelearning.AlertDialogs.DeleteDocumentAlertDialog;
 import com.nisith.onlinelearning.Fragments.UpdateQuestionFragment;
-import com.nisith.onlinelearning.Model.MenuItem;
 import com.nisith.onlinelearning.Model.QuestionAnswer;
 
 public class QuestionAnswerEditActivity extends AppCompatActivity implements QAEditRecyclerAdapter.OnItemClickListener, UpdateQuestionFragment.OnCloseWindowListener {
@@ -89,6 +92,25 @@ public class QuestionAnswerEditActivity extends AppCompatActivity implements QAE
         if (adapter != null && parentDocumentId != null && childDocumentId != null){
             adapter.stopListening();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.admin_menu, menu);
+        menu.findItem(R.id.edit_question_answer_panel).setVisible(false);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.write_question_answer_panel){
+            startActivity(new Intent(this, ControlPanelActivity.class));
+        }
+        return true;
     }
 
 

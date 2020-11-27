@@ -54,6 +54,7 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
 
 
 
+
     class MyViewHolder extends RecyclerView.ViewHolder{
         TextView titleTextView;
         Button saveButton;

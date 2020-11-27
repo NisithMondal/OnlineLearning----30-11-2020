@@ -36,6 +36,8 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     //to crop an image
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    //to create image thumbnail
+    implementation 'id.zelory:compressor:2.1.0'
 
     implementation 'com.google.firebase:firebase-firestore:22.0.0'
     implementation 'com.google.firebase:firebase-auth:20.0.1'
@@ -46,6 +48,7 @@ dependencies {
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
+    implementation 'com.google.firebase:firebase-storage:19.2.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
