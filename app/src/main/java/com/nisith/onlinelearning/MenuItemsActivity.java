@@ -66,7 +66,7 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
         FirestoreRecyclerOptions<MenuItem> recyclerOptions = new FirestoreRecyclerOptions.Builder<MenuItem>()
                 .setQuery(query, MenuItem.class)
                 .build();
-        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this, this);
+        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this, this, Constant.MENU_ITEMS);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setHasFixedSize(true);

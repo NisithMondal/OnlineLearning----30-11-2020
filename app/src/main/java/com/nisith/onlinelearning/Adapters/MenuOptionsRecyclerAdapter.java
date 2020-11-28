@@ -19,6 +19,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.nisith.onlinelearning.Constant;
 import com.nisith.onlinelearning.Model.MenuItem;
 import com.nisith.onlinelearning.R;
+import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,12 +32,14 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
 
 
     private OnItemClickListener itemClickListener;
+   private String menuType; //i.e. item is a menu header options or menu subItems. I use this to set collection icon or document icon
    private Context context;
 
-    public MenuOptionsRecyclerAdapter(@NonNull FirestoreRecyclerOptions<MenuItem> options, OnItemClickListener itemClickListener, Context context) {
+    public MenuOptionsRecyclerAdapter(@NonNull FirestoreRecyclerOptions<MenuItem> options, OnItemClickListener itemClickListener, Context context, String menuType) {
         super(options);
         this.itemClickListener = itemClickListener;
         this.context = context;
+        this.menuType = menuType;
     }
 
     @NonNull
@@ -50,6 +53,11 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
     protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull MenuItem model) {
         String title = model.getTitle();
         holder.titleTextView.setText(title);
+        if (menuType.equals(Constant.MENU_HEADER)){
+            holder.fileTypeImageView.setImageResource(R.drawable.ic_collection);
+        }else if (menuType.equals(Constant.MENU_ITEMS)){
+            holder.fileTypeImageView.setImageResource(R.drawable.ic_document);
+        }
     }
 
 
@@ -59,7 +67,7 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
         TextView titleTextView;
         Button saveButton;
         EditText updateEditText;
-        ImageView editImageView, deleteImageView;
+        ImageView editImageView, deleteImageView, fileTypeImageView;
         public MyViewHolder(@NonNull final View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.text_view);
@@ -67,6 +75,7 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
             updateEditText = itemView.findViewById(R.id.update_edit_text);
             editImageView = itemView.findViewById(R.id.edit_image_view);
             deleteImageView = itemView.findViewById(R.id.delete_image_view);
+            fileTypeImageView = itemView.findViewById(R.id.type_image_view);
             saveButton.setVisibility(View.GONE);
             updateEditText.setVisibility(View.GONE);
 

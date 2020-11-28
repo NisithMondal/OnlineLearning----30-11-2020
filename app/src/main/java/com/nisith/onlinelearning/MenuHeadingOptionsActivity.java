@@ -60,7 +60,7 @@ public class MenuHeadingOptionsActivity extends AppCompatActivity  implements Me
         FirestoreRecyclerOptions<MenuItem> recyclerOptions = new FirestoreRecyclerOptions.Builder<MenuItem>()
                 .setQuery(query, MenuItem.class)
                 .build();
-        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this, this);
+        adapter = new MenuOptionsRecyclerAdapter(recyclerOptions, this, this, Constant.MENU_HEADER);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setHasFixedSize(true);

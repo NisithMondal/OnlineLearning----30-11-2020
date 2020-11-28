@@ -22,5 +22,7 @@ public class Constant {
     public static final String DATA_LOADING_START = "data_loading_start";
     public static final String DATA_LOADING_FINISH = "data_loading_finish";
     public static final String DATA_LOADING_ERROR = "data_loading_error";
+    public static final String MENU_HEADER = "menu_header";
+    public static final String MENU_ITEMS = "menu_items";
     public final static int pageSize = 10;
 }
