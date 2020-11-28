@@ -8,6 +8,13 @@
     android:background="#FFFFFF"
     tools:context=".AdminOptionsActivity">
 
+
+
+    <include
+        android:id="@+id/app_toolbar"
+        layout="@layout/app_toolbar"/>
+
+
     <TextView
         android:id="@+id/question_text_view"
         android:layout_width="match_parent"

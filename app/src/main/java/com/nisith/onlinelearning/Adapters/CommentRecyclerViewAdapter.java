@@ -18,6 +18,7 @@ import com.nisith.onlinelearning.Model.Comment;
 import com.nisith.onlinelearning.Model.QuestionAnswer;
 import com.nisith.onlinelearning.Model.User;
 import com.nisith.onlinelearning.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
@@ -110,6 +111,8 @@ public class CommentRecyclerViewAdapter extends FirestorePagingAdapter<Comment, 
                             if (user != null){
                                 String userName = user.getUserName();
                                 String profileImageUrl = user.getProfileImageUrl();
+                                Picasso.get().load(profileImageUrl).fit().centerCrop().placeholder(R.drawable.default_user_icon)
+                                        .into(holder.profileImageView);
                                 if (currentUserId != null&& currentUserId.equals(userId)) {
                                     //means same user
                                     holder.profileNameTextView.setText("Your Comment");

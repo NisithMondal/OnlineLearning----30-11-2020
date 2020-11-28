@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,18 +53,27 @@ import static android.app.Activity.RESULT_OK;
 
 public class UserAccountFragment extends Fragment {
 
+    public interface OnUpdateUserAccountListener{
+        void onUpdateUserAccount();
+    }
+
     private CircleImageView profileImageView;
     private EditText userNameEditText;
     private ImageView nameEditIcon, cameraImageView;
     private Button updateProfileButton;
+    private ProgressBar progressBar;
     private byte[] profileImageByteArray;
     private CollectionReference userCollectionRef;
     //Firebase storage
     private StorageReference firebaseStorageRef;
     private String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private boolean isImageViewClicked, isEditTextClicked;//if only image view is clicked then we only update image view or name
-    public UserAccountFragment() {
+    private OnUpdateUserAccountListener onUpdateUserAccountListener;
+
+
+    public UserAccountFragment(OnUpdateUserAccountListener onUpdateUserAccountListener) {
         // Required empty public constructor
+        this.onUpdateUserAccountListener = onUpdateUserAccountListener;
     }
 
 
@@ -76,6 +86,7 @@ public class UserAccountFragment extends Fragment {
         profileImageView = view.findViewById(R.id.profile_image_view);
         nameEditIcon = view.findViewById(R.id.name_edit_icon);
         cameraImageView = view.findViewById(R.id.camera_image_view);
+        progressBar = view.findViewById(R.id.progress_bar);
         updateProfileButton = view.findViewById(R.id.update_profile_button);
         return view;
 
@@ -86,6 +97,7 @@ public class UserAccountFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         updateProfileButton.setVisibility(View.GONE);//first invisible profile update button
+        progressBar.setVisibility(View.GONE);
         userNameEditText.setEnabled(false);
         profileImageView.setOnClickListener(new MyClickListener());
         cameraImageView.setOnClickListener(new MyClickListener());
@@ -115,6 +127,7 @@ public class UserAccountFragment extends Fragment {
                     break;
 
                 case R.id.profile_image_view:
+                    isImageViewClicked = true;
                     openGallery();
                     break;
 
@@ -146,7 +159,6 @@ public class UserAccountFragment extends Fragment {
                                String userName = user.getUserName();
                                userNameEditText.setText(userName);
                                String profileImageUrl = user.getProfileImageUrl();
-                               Log.d("ABCDE", profileImageUrl);
                                Picasso.get().load(profileImageUrl).fit().centerCrop().placeholder(R.drawable.default_user_icon)
                                        .into(profileImageView);
 
@@ -189,6 +201,7 @@ public class UserAccountFragment extends Fragment {
                 if (task.isSuccessful()){
                     Toast.makeText(getContext(), "Name update Successfully", Toast.LENGTH_SHORT).show();
                     userNameEditText.setEnabled(false);
+                    onUpdateUserAccountListener.onUpdateUserAccount();
                 }else {
                     Toast.makeText(getContext(), "Name Not update "+ Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -199,6 +212,7 @@ public class UserAccountFragment extends Fragment {
 
     private void updateUserProfileImage(final String userId){
         if (profileImageByteArray != null){
+            progressBar.setVisibility(View.VISIBLE);
             firebaseStorageRef.child(userId+".jpg").putBytes(profileImageByteArray)
                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                        @Override
@@ -217,7 +231,9 @@ public class UserAccountFragment extends Fragment {
                                        documentReference.update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                                            @Override
                                            public void onComplete(@NonNull Task<Void> task) {
+                                               progressBar.setVisibility(View.GONE);
                                                if (task.isSuccessful()){
+                                                   onUpdateUserAccountListener.onUpdateUserAccount();
                                                    Toast.makeText(getContext(), "Image uploaded Successfully", Toast.LENGTH_SHORT).show();
                                                    Picasso.get().load(newImageUrl).fit().centerCrop().placeholder(R.drawable.default_user_icon)
                                                            .into(profileImageView);
@@ -234,6 +250,7 @@ public class UserAccountFragment extends Fragment {
                    }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Image not uploaded "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

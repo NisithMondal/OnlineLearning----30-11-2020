@@ -48,6 +48,13 @@ public class QuestionAnswerEditActivity extends AppCompatActivity implements QAE
         childDocumentId = intent.getStringExtra(Constant.CHILD_DOCUMENT_ID);
         String title = intent.getStringExtra(Constant.TITLE);
         initializeViews(title);
+        appToolbar.setNavigationIcon(R.drawable.ic_back_arrow_icon);
+        appToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         collectionReference = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
         setupRecyclerViewWithAdapter();
         createFragment();
@@ -109,6 +116,9 @@ public class QuestionAnswerEditActivity extends AppCompatActivity implements QAE
         super.onOptionsItemSelected(item);
         if (item.getItemId() == R.id.write_question_answer_panel){
             startActivity(new Intent(this, ControlPanelActivity.class));
+        }else if (item.getItemId() == R.id.home){
+            startActivity(new Intent(this, HomeActivity.class));
+            finishAffinity();
         }
         return true;
     }
@@ -152,7 +162,8 @@ public class QuestionAnswerEditActivity extends AppCompatActivity implements QAE
                 showFragment();
                 break;
             case R.id.root_view:
-
+                updateQuestionFragment.setData(question, answer, documentReference);
+                showFragment();
                 break;
         }
     }

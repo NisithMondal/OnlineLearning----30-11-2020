@@ -180,7 +180,7 @@ public class CommentFragment extends Fragment implements HomeActivity.OnFragment
     }
 
     @Override
-    public void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId) {
+    public void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId, String headingTitle) {
         this.menuHeaderDocumentId = menuHeaderDocumentId;
         this.menuItemDocumentId = menuItemDocumentId;
         if (recyclerViewAdapter != null){

@@ -8,8 +8,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
+import android.accounts.OnAccountsUpdateListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -22,12 +24,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,6 +40,7 @@ import com.nisith.onlinelearning.Fragments.CommentFragment;
 import com.nisith.onlinelearning.Fragments.HomeFragment;
 import com.nisith.onlinelearning.Fragments.UserAccountFragment;
 import com.nisith.onlinelearning.Model.DrawerMenu;
+import com.nisith.onlinelearning.Model.User;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -46,22 +52,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UserAccountFragment.OnUpdateUserAccountListener {
+
+
 
     public interface OnFragmentDataCommunicationListener{
-        void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId);
+        void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId, String headingTitle);
     }
 
     private NavigationView navigationDrawerView;
+    private CircleImageView navigationDrawerHeaderImageView;
     private DrawerLayout drawerLayout;
     private Toolbar appToolbar;
+    private TextView toolbarTextView, navigationDrawerHeaderProfileNameTextView;
     private BottomNavigationView bottomNavigationView;
     //Firebase Auth
     private FirebaseAuth firebaseAuth;
     private CollectionReference rootCollectionRef;
+    private String userId;
     private List<DrawerMenu> drawerMenuList;
-    private String menuHeaderDocumentId, menuItemDocumentId;
+    private String menuHeaderDocumentId, menuItemDocumentId, headingTitle = Constant.DEFAULT_LANGUAGE;
     private OnFragmentDataCommunicationListener onFragmentDataCommunicationListener;
+
 
 
 
@@ -74,28 +86,73 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         drawerMenuList = new ArrayList<>();
         //Firebase
         firebaseAuth = FirebaseAuth.getInstance();
-        rootCollectionRef = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
         bottomNavigationView.setOnNavigationItemSelectedListener(new MyNavigationItemSelectedListener());
         //Set default fragment on starting
-        Fragment fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId);
+        Fragment fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId, headingTitle);
         onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment, "fragment").commit();
+        navigationDrawerHeaderProfileNameTextView.setOnClickListener(new MyNavigationHeaderMenuItemClickListener());
+        navigationDrawerHeaderImageView.setOnClickListener(new MyNavigationHeaderMenuItemClickListener());
     }
 
 
     private void initializeViews(){
         navigationDrawerView = findViewById(R.id.navigation_view);
+        View headerView = navigationDrawerView.getHeaderView(0);
+        navigationDrawerHeaderImageView = headerView.findViewById(R.id.profile_image_view);
+        navigationDrawerHeaderProfileNameTextView = headerView.findViewById(R.id.profile_name_text_view);
         drawerLayout = findViewById(R.id.navigation_drawer);
         appToolbar = findViewById(R.id.app_toolbar);
         setSupportActionBar(appToolbar);
         setTitle("");
-        TextView toolbarTextView = findViewById(R.id.toolbar_text_view);
-        toolbarTextView.setText("Online Learning");
+        toolbarTextView = findViewById(R.id.toolbar_text_view);
+        toolbarTextView.setText(Constant.APP_NAME);
         setSupportActionBar(appToolbar);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
     }
 
 
+    private class MyNavigationHeaderMenuItemClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            openUserAccountFragment();
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+
+    @Override
+    public void onUpdateUserAccount() {
+        //this is a callback method called when current user update his/her account.
+        // So we have to update his data in Navigation drawer menu header also.
+        fetchUserProfileData();
+    }
+
+    private void fetchUserProfileData(){
+        //fetch current user name and profile image from fireStore
+        if (userId != null){
+            DocumentReference userDocumentReference = FirebaseFirestore.getInstance().collection(Constant.USERS).document(userId);
+            userDocumentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()){
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (documentSnapshot != null){
+                            User user = documentSnapshot.toObject(User.class);
+                            if (user != null){
+                                String userName = user.getUserName();
+                                navigationDrawerHeaderProfileNameTextView.setText(userName);
+                                String profileImageUrl = user.getProfileImageUrl();
+                                Picasso.get().load(profileImageUrl).fit().centerCrop().placeholder(R.drawable.default_user_icon)
+                                        .into(navigationDrawerHeaderImageView);
+
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -105,8 +162,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             //User not register i.e. new user
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+        }else {
+            userId = currentUser.getUid();
+            rootCollectionRef = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
+
+            fetchUserProfileData();//set this data on Navigation drawer header menu
+            addNavigationDrawerMenuItems();
         }
-        addNavigationDrawerMenuItems();
 
     }
 
@@ -117,17 +179,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             Fragment fragment = null;
             switch (menuItem.getItemId()){
                 case R.id.home:
-                    fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId);
+                    toolbarTextView.setText(Constant.APP_NAME);
+                    fragment = new HomeFragment(menuHeaderDocumentId, menuItemDocumentId, headingTitle);
                     onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
                     break;
 
                 case R.id.add_comment:
+                    toolbarTextView.setText("User Comments");
                     fragment = new CommentFragment(menuHeaderDocumentId, menuItemDocumentId);
                     onFragmentDataCommunicationListener = (OnFragmentDataCommunicationListener) fragment;
                     break;
 
                 case R.id.account:
-                    fragment = new UserAccountFragment();
+                    toolbarTextView.setText("User Account");
+                    fragment = new UserAccountFragment(HomeActivity.this);
                     break;
             }
             getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, fragment).commit();
@@ -214,6 +279,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getTitle().toString()){
             case Constant.LOGOUT:
                 firebaseAuth.signOut();
+                startActivity(new Intent(this, LoginActivity.class));
+                finishAffinity();
                 break;
             case Constant.ADMIN_USER_LOGIN:
                 startActivity(new Intent(HomeActivity.this, AdminOptionsActivity.class));
@@ -226,9 +293,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     for (DrawerMenu drawerMenu : drawerMenuList){
                         if (drawerMenu.getMenuItemTitle().equals(itemTitle)){
                             if (onFragmentDataCommunicationListener != null) {
+                                this.headingTitle = itemTitle;
                                 menuHeaderDocumentId = drawerMenu.getMenuHeaderDocumentId();
                                 menuItemDocumentId = drawerMenu.getMenuItemDocumentId();
-                                onFragmentDataCommunicationListener.onDataCommunication(drawerMenu.getMenuHeaderDocumentId(), drawerMenu.getMenuItemDocumentId());
+                                onFragmentDataCommunicationListener.onDataCommunication(drawerMenu.getMenuHeaderDocumentId(), drawerMenu.getMenuItemDocumentId(), headingTitle);
                                 break;
                             }else {
                                 Toast.makeText(this, "else null "+itemTitle, Toast.LENGTH_SHORT).show();
@@ -253,9 +321,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()){
+            case R.id.user_account:
+                openUserAccountFragment();
+                break;
+
             case R.id.logout:
                 firebaseAuth.signOut();
                 startActivity(new Intent(this, LoginActivity.class));
+                finishAffinity();
                 break;
 
             case R.id.privacy_policy:
@@ -273,6 +346,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+
+    private void openUserAccountFragment(){
+        toolbarTextView.setText("User Account");
+        Fragment accountFragment = new UserAccountFragment(this);
+        bottomNavigationView.setSelectedItemId(R.id.account);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, accountFragment).commit();
+    }
 
 
 

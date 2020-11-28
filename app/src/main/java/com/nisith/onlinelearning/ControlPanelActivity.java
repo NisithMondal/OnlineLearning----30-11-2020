@@ -126,6 +126,9 @@ public class ControlPanelActivity extends AppCompatActivity {
         super.onOptionsItemSelected(item);
         if (item.getItemId() == R.id.edit_question_answer_panel){
             startActivity(new Intent(this, MenuHeadingOptionsActivity.class));
+        }else if (item.getItemId() == R.id.home){
+            startActivity(new Intent(this, HomeActivity.class));
+            finishAffinity();
         }
         return true;
     }

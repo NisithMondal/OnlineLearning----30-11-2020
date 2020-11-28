@@ -108,7 +108,7 @@ public class MenuOptionsRecyclerAdapter extends FirestoreRecyclerAdapter<MenuIte
                 @Override
                 public void onClick(View v) {
                     DocumentReference documentReference = getSnapshots().getSnapshot(getAdapterPosition()).getReference();
-                    documentReference.delete();//delete the document
+                    itemClickListener.onItemClick(v, getItem(getAdapterPosition()).getTitle(),documentReference);
                 }
             });
 

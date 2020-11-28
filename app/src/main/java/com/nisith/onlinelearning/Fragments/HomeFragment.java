@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.firestore.CollectionReference;
@@ -26,16 +27,18 @@ import com.nisith.onlinelearning.R;
 public class HomeFragment extends Fragment implements HomeActivity.OnFragmentDataCommunicationListener, HomeFragmentRecyclerViewAdapter.OnLoadingStateChangeListener {
 
 
+    private TextView headingTextView;
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private HomeFragmentRecyclerViewAdapter recyclerViewAdapter;
     private CollectionReference rootCollectionRef;
-    private String menuHeaderDocumentId, menuItemDocumentId;
+    private String menuHeaderDocumentId, menuItemDocumentId, headingTitle;
 
-    public HomeFragment(String menuHeaderDocumentId, String menuItemDocumentId) {
+    public HomeFragment(String menuHeaderDocumentId, String menuItemDocumentId, String headingTitle) {
         // Required empty public constructor
         this.menuHeaderDocumentId = menuHeaderDocumentId;
         this.menuItemDocumentId = menuItemDocumentId;
+        this.headingTitle = headingTitle;
     }
 
     @Override
@@ -44,6 +47,7 @@ public class HomeFragment extends Fragment implements HomeActivity.OnFragmentDat
         View view =  inflater.inflate(R.layout.fragment_home, container, false);
         recyclerView = view.findViewById(R.id.question_recycler_view);
         progressBar = view.findViewById(R.id.progress_bar);
+        headingTextView = view.findViewById(R.id.heading_text_view);
         return view;
     }
 
@@ -52,6 +56,7 @@ public class HomeFragment extends Fragment implements HomeActivity.OnFragmentDat
         super.onActivityCreated(savedInstanceState);
         progressBar.setVisibility(View.GONE);
         rootCollectionRef = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
+        headingTextView.setText("Questions on "+headingTitle);
         setupRecyclerviewWithAdapter();
     }
 
@@ -104,7 +109,9 @@ public class HomeFragment extends Fragment implements HomeActivity.OnFragmentDat
 
 
     @Override
-    public void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId) {
+    public void onDataCommunication(String menuHeaderDocumentId, String menuItemDocumentId, String headingTitle) {
+        this.headingTitle = headingTitle;
+        headingTextView.setText("Questions on "+headingTitle);
         if (recyclerViewAdapter != null){
             recyclerViewAdapter.updateOptions(createFireStorePagingOptions(menuHeaderDocumentId, menuItemDocumentId));
         }

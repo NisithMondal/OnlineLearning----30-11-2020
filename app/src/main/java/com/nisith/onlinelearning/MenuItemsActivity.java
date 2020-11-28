@@ -20,11 +20,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.nisith.onlinelearning.Adapters.MenuOptionsRecyclerAdapter;
+import com.nisith.onlinelearning.AlertDialogs.DeleteDocumentAlertDialog;
 import com.nisith.onlinelearning.Model.MenuItem;
 
 public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsRecyclerAdapter.OnItemClickListener {
 
     private RecyclerView recyclerView;
+    private Toolbar appToolbar;
     private MenuOptionsRecyclerAdapter adapter;
     private CollectionReference collectionReference;
     private String documentId;
@@ -37,6 +39,13 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
         documentId = intent.getStringExtra(Constant.DOCUMENT_ID);
         String title = intent.getStringExtra(Constant.TITLE);
         initializeViews(title);
+        appToolbar.setNavigationIcon(R.drawable.ic_back_arrow_icon);
+        appToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         collectionReference = FirebaseFirestore.getInstance().collection(Constant.TOPICS);
         setupRecyclerViewWithAdapter();
 
@@ -44,7 +53,7 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
 
 
     private void initializeViews(String title){
-        Toolbar appToolbar = findViewById(R.id.app_toolbar);
+        appToolbar = findViewById(R.id.app_toolbar);
         setSupportActionBar(appToolbar);
         setTitle("");
         TextView toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -80,6 +89,9 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
         super.onOptionsItemSelected(item);
         if (item.getItemId() == R.id.write_question_answer_panel){
             startActivity(new Intent(this, ControlPanelActivity.class));
+        }else if (item.getItemId() == R.id.home){
+            startActivity(new Intent(this, HomeActivity.class));
+            finishAffinity();
         }
         return true;
     }
@@ -103,12 +115,17 @@ public class MenuItemsActivity extends AppCompatActivity implements MenuOptionsR
 
     @Override
     public void onItemClick(View view, String title, DocumentReference documentReference) {
-        if (view.getId()==R.id.root_view) {
-            Intent intent = new Intent(this, QuestionAnswerEditActivity.class);
-            intent.putExtra(Constant.PARENT_DOCUMENT_ID, documentId);
-            intent.putExtra(Constant.CHILD_DOCUMENT_ID, documentReference.getId());
-            intent.putExtra(Constant.TITLE, title);
-            startActivity(intent);
+        switch (view.getId()){
+            case R.id.root_view:
+                Intent intent = new Intent(this, QuestionAnswerEditActivity.class);
+                intent.putExtra(Constant.PARENT_DOCUMENT_ID, documentId);
+                intent.putExtra(Constant.CHILD_DOCUMENT_ID, documentReference.getId());
+                intent.putExtra(Constant.TITLE, title);
+                startActivity(intent);
+                break;
+            case R.id.delete_image_view:
+                DeleteDocumentAlertDialog dialog = new DeleteDocumentAlertDialog(documentReference, this);
+                dialog.show(getSupportFragmentManager(), "online learning");
         }
     }
 }

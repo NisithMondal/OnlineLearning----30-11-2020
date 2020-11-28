@@ -1,6 +1,7 @@
 package com.nisith.onlinelearning;
 
 public class Constant {
+    public static final String APP_NAME = "Online Learning";
     public static final String USERS = "users";
     public static final String DEFAULT = "default";
     public static final String ADMIN_USER_LOGIN = "Admin User Login";
@@ -17,6 +18,7 @@ public class Constant {
     public static final String COMMENTS_COLLECTION = "comments_collection";
     public static final String DEFAULT_MENU_HEADER_DOCUMENT_ID = "Programming Languages";
     public static final String DEFAULT_MENU_ITEM_DOCUMENT_ID = "Java";
+    public static final String DEFAULT_LANGUAGE = "Java";
     public static final String DATA_LOADING_START = "data_loading_start";
     public static final String DATA_LOADING_FINISH = "data_loading_finish";
     public static final String DATA_LOADING_ERROR = "data_loading_error";
