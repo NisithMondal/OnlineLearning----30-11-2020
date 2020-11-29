@@ -1,7 +1,7 @@
 package com.nisith.onlinelearning;
 
 public class Constant {
-    public static final String APP_NAME = "Online Learning";
+    public static final String APP_NAME = "Questions World";
     public static final String USERS = "users";
     public static final String DEFAULT = "default";
     public static final String ADMIN_USER_LOGIN = "Admin User Login";
@@ -24,5 +24,7 @@ public class Constant {
     public static final String DATA_LOADING_ERROR = "data_loading_error";
     public static final String MENU_HEADER = "menu_header";
     public static final String MENU_ITEMS = "menu_items";
+    public static final String ASCENDING_ORDER = "ascending_order";
+    public static final String DESCENDING_ORDER = "descending_order";
     public final static int pageSize = 10;
 }

@@ -3,11 +3,11 @@ package com.nisith.onlinelearning.Model;
 public class QuestionAnswer {
     private String question;
     private String answer;
-    private long timeStamp;
+    private String timeStamp;
 
     public QuestionAnswer(){}
 
-    public QuestionAnswer(String question, String answer, long timeStamp) {
+    public QuestionAnswer(String question, String answer, String timeStamp) {
         this.question = question;
         this.answer = answer;
         this.timeStamp = timeStamp;
@@ -21,7 +21,7 @@ public class QuestionAnswer {
         return answer;
     }
 
-    public long getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 }

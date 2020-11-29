@@ -5,11 +5,11 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
-        applicationId "com.nisith.onlinelearning"
+        applicationId "com.nisithmondaltechnology.questionsworld"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,6 +38,9 @@ dependencies {
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     //to create image thumbnail
     implementation 'id.zelory:compressor:2.1.0'
+    //for animation
+    implementation 'com.daimajia.easing:library:2.0@aar'
+    implementation 'com.daimajia.androidanimations:library:2.3@aar'
 
     implementation 'com.google.firebase:firebase-firestore:22.0.0'
     implementation 'com.google.firebase:firebase-auth:20.0.1'

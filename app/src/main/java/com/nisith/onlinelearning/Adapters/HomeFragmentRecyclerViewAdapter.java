@@ -17,8 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class HomeFragmentRecyclerViewAdapter extends FirestorePagingAdapter<QuestionAnswer, HomeFragmentRecyclerViewAdapter.MyViewHolder> {
 
-
-
     public interface OnLoadingStateChangeListener{
         void onLoadingStateChange(String state);
     }

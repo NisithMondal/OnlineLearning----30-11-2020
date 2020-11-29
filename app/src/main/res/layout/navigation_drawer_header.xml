@@ -16,6 +16,8 @@
         android:layout_marginStart="36dp"
         android:layout_marginBottom="10dp"
         android:layout_above="@+id/profile_name_text_view"
+        app:civ_border_width="3dp"
+
         />
 
     <TextView

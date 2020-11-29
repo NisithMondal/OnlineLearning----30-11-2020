@@ -286,7 +286,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(HomeActivity.this, AdminOptionsActivity.class));
                 break;
             case Constant.PRIVACY_POLICY:
-                Toast.makeText(this, "PRIVACY_POLICY", Toast.LENGTH_SHORT).show();
+                openPrivacyPolicyLink();
                 break;
             default:
                 String itemTitle = (String) menuItem.getTitle();
@@ -332,7 +332,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.privacy_policy:
-                Toast.makeText(this, "Privacy Policy", Toast.LENGTH_SHORT).show();
+                openPrivacyPolicyLink();
         }
         return true;
     }
@@ -354,6 +354,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout, accountFragment).commit();
     }
 
+
+    private void openPrivacyPolicyLink(){
+        //If play store app is not installed in that device, then the following code open play store app in web browser.
+        Intent playStoreIntent1 = new Intent();
+        playStoreIntent1.setAction(Intent.ACTION_VIEW);
+        playStoreIntent1.setData(Uri.parse("https://privacypolicyquestionsworld.blogspot.com/p/privacy-policies-questions-world.html"));
+        try {
+            startActivity(playStoreIntent1);
+        }catch (Exception e){
+            Toast.makeText(this, "Not Open. Something Went Wrong", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
 

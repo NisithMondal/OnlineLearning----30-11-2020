@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +45,7 @@ import java.util.Objects;
 
 public class ControlPanelActivity extends AppCompatActivity {
     private Toolbar appToolbar;
+    private ProgressBar progressBar;
     private EditText menuHeaderEditText, topicEditText, questionEditText, answerEditText;
     private Button addMenuHeaderButton, addTopicButton, postAnswerButton;
     private Spinner menuHeaderSpinner, topicSpinner;
@@ -75,6 +77,7 @@ public class ControlPanelActivity extends AppCompatActivity {
         topicSpinner.setOnItemSelectedListener(new MySpinnerItemsClickListener());
         menuHeaderTextView.setText("No Option Selected");
         topicTextView.setText("No Option Selected");
+        progressBar.setVisibility(View.GONE);
         //spinner adapter
         menuSpinnerAdapter = setDataOnMenuHeaderSpinner();
         topicSpinnerAdapter = setDataOnTopicSpinner();
@@ -89,6 +92,7 @@ public class ControlPanelActivity extends AppCompatActivity {
 
     private void initializeViews(){
         appToolbar = findViewById(R.id.app_toolbar);
+        progressBar = findViewById(R.id.progress_bar);
         setSupportActionBar(appToolbar);
         setTitle("");
         TextView toolbarTextView = findViewById(R.id.toolbar_text_view);
@@ -267,9 +271,15 @@ public class ControlPanelActivity extends AppCompatActivity {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots){
                     if (documentSnapshot.exists()){
-                        String item = documentSnapshot.get(Constant.TITLE).toString();
-                        topicSpinnerAdapter.remove(item);
-                        topicSpinnerAdapter.add(item);
+                        try {
+                            String item = Objects.requireNonNull(documentSnapshot.get(Constant.TITLE)).toString();
+                            topicSpinnerAdapter.remove(item);
+                            topicSpinnerAdapter.add(item);
+                        }catch (Exception e){
+
+                        }
+
+
                     }
                 }
             }
@@ -296,8 +306,9 @@ public class ControlPanelActivity extends AppCompatActivity {
             answerEditText.requestFocus();
             return;
         }
+        progressBar.setVisibility(View.VISIBLE);
         long currentTimeMilli =  System.currentTimeMillis();
-        QuestionAnswer questionAnswer = new QuestionAnswer(questionValue, answerValue, currentTimeMilli);
+        QuestionAnswer questionAnswer = new QuestionAnswer(questionValue, answerValue, getCurrentDateAndTime()+currentTimeMilli);
         WriteBatch writeBatch = FirebaseFirestore.getInstance().batch();
         DocumentReference menuOptionsDocumentRef = menuHeaderCollectionRef.document(menuHeaderSpinnerValue);
         Map<String, Object> map = new HashMap<>();
@@ -314,6 +325,7 @@ public class ControlPanelActivity extends AppCompatActivity {
         writeBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()){
                     Toast.makeText(ControlPanelActivity.this, "Successful", Toast.LENGTH_SHORT).show();
                 }else {

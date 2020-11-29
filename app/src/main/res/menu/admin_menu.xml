@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/sort"
+        android:title="sort"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_decending_order"
+        />
+
+    <item
+        android:id="@+id/search"
+        android:title="Search"
+        app:showAsAction="always|collapseActionView"
+        android:icon="@drawable/ic_search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        />
+
+
 
     <item
         android:id="@+id/home"
-        android:title="Home" />
+        android:title="Home"
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/write_question_answer_panel"
-        android:title="Write Question Answer Panel" />
+        android:title="Write Question Answer Panel"
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/edit_question_answer_panel"
-        android:title="Edit Question Answer Panel" />
+        android:title="Edit Question Answer Panel"
+        app:showAsAction="never"
+        />
 
 </menu>
